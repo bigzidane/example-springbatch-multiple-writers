@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+						http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+						http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<!-- Global level -->
+	<bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
+	
+	<bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
+    	<property name="transactionManager" ref="transactionManager" />
+	</bean>
+	
+	<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+	    <property name="jobRepository" ref="jobRepository" />
+	</bean>
+	
+	<bean id="syncTaskExecutor" class="org.springframework.core.task.SyncTaskExecutor" />
+	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+	
+	<!-- Job Level -->
+	<bean id="examplePartitioner" class="com.itservicesdepot.example.springbatch.partitioner.ExamplePartitioner" scope="step">
+		<property name="initValue" value="#{T(java.lang.Long).parseLong(jobParameters['initValue'])}" />
+	</bean>
+	
+	<bean id="exampleReader" class="com.itservicesdepot.example.springbatch.reader.ExampleReader" scope="step">
+		<property name="value" value="#{stepExecutionContext['valueForReader']}" />
+	</bean>
+	
+	<bean id="exampleProcessor" class="com.itservicesdepot.example.springbatch.processor.ExampleProcessor" scope="step"/>
+	<bean id="exampleWriter" class="com.itservicesdepot.example.springbatch.writer.ExampleWriter" scope="step"/>
+		
+</beans>
