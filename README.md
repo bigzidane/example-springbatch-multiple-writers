@@ -1,14 +1,8 @@
-# example-springbatch-partitioner
+# example-springbatch-multiple-writers
 
-This is to demo how to use Spring-Batch with
+This is to demo how to use Spring-Batch with Multiple Writers based on Conditions
 
-- Partitioner<br>
-- Reader<br>
-- Writer<br>
-- Processor<br>
-
-In this example, we will create X number of threads and then each of them go through Reader and then Processor and then Writer.
-
-- The Reader is simply getting a parameter from Partitioner as a number.<br>
-- The Processor is simply converting a number from Reader to a string.<br>
-- The Writer is simply printing out the String from Processor.<br>
+- This job takes a file as an input parameter. The files contains 2 columns id and name. 
+- The job will write into 2 files
+	- All IDs are less than the number 16 will be stored as under16.csv
+	- All IDs are more than the number 16 will be stored as over16.csv 

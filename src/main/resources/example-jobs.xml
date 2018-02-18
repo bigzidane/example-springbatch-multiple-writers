@@ -10,18 +10,17 @@
 
 	<import resource="example-beans.xml" />
 	
-	<!-- This is to demo Partitioner -->
-	<job id="exampleJobPartitioner" xmlns="http://www.springframework.org/schema/batch">
-		<step id="stepId">
-			<partition step="partitionerStepId" partitioner="examplePartitioner">
-				<handler grid-size="1" task-executor="syncTaskExecutor" />
-			</partition>
+	<!-- This is to demo Multiple Writers -->
+	<job id="exampleMultiWritersJob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="stepMultiWriters">
+			<tasklet>
+				<chunk reader="exampleFileSourceReader" writer="exampleMultiWriters" commit-interval="10">
+					<streams>
+						<batch:stream ref="under16Writer" />
+						<batch:stream ref="over16Writer" />
+					</streams>
+				</chunk>
+			</tasklet>
 		</step>
 	</job>
-	
-	<step id="partitionerStepId" xmlns="http://www.springframework.org/schema/batch">
-		<tasklet>
-			<chunk reader="exampleReader" writer="exampleWriter" processor="exampleProcessor" commit-interval="1" />
-		</tasklet>
-	</step>
 </beans>

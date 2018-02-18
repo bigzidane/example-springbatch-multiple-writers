@@ -19,24 +19,25 @@ import junit.framework.Assert;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:example-jobs.xml"})
-public class ShowCaseTest {
+public class MultipleWritersTest {
 
 	@Autowired
 	private JobLauncher jobLauncher;
 
 	@Autowired
-	@Qualifier(value = "exampleJobPartitioner")
-	private Job exampleJobPartitioner;
+	@Qualifier(value = "exampleMultiWritersJob")
+	private Job exampleMultiWritersJob;
 	
 	@Test
 	public void exampleJob() throws Exception {
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 
-		JobExecution jobExecution = jobLauncher.run(this.exampleJobPartitioner,
+		JobExecution jobExecution = jobLauncher.run(this.exampleMultiWritersJob,
 				new JobParametersBuilder()
 						.addDate("now", new Date())
-						.addLong("initValue", 1234L).toJobParameters());
+						.addString("file", "c:/work/spring-batch/file/soccerList.csv")
+						.toJobParameters());
 
 		stopWatch.stop();
 
