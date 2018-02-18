@@ -6,6 +6,7 @@ Partitioner
 Reader
 Writer
 Processor
+
 In this example, we will create X number of threads and then each of them go through Reader and then Processor and then Writer.
 
 The Reader is simply getting a parameter from Partitioner as a number
