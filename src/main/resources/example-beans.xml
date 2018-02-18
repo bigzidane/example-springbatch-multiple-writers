@@ -24,15 +24,86 @@
 	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
 	
 	<!-- Job Level -->
-	<bean id="examplePartitioner" class="com.itservicesdepot.example.springbatch.partitioner.ExamplePartitioner" scope="step">
-		<property name="initValue" value="#{T(java.lang.Long).parseLong(jobParameters['initValue'])}" />
+	<bean id="exampleFileSourceReader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+		<property name="resource" value="file:#{jobParameters['file']}" />
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<!-- split it -->
+				<property name="lineTokenizer">
+					<bean
+						class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+						<property name="names" value="id,name" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper">
+					<!-- map to an object -->
+					<bean
+						class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+						<property name="prototypeBeanName" value="exampleFileMapper" />
+					</bean>
+				</property>
+			</bean>
+		</property>
 	</bean>
 	
-	<bean id="exampleReader" class="com.itservicesdepot.example.springbatch.reader.ExampleReader" scope="step">
-		<property name="value" value="#{stepExecutionContext['valueForReader']}" />
+	<bean id="exampleMultiWriters" class="org.springframework.batch.item.support.ClassifierCompositeItemWriter" scope="step">
+		<property name="classifier" ref="classifier" />
+	</bean>
+
+	<bean id="classifier" class="org.springframework.batch.classify.BackToBackPatternClassifier">
+		<property name="routerDelegate">
+			<bean class="com.itservicesdepot.example.springbatch.writer.ExampleWriterRouteImpl" />
+		</property>
+		<property name="matcherMap">
+			<map>
+				<entry key="under16" value-ref="under16Writer" />
+				<entry key="over16" value-ref="over16Writer" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="under16Writer" class="org.springframework.batch.item.file.FlatFileItemWriter">
+		<!-- write to this csv file -->
+		<property name="resource" value="file:c:/work/spring-batch/file/under16.csv" />
+		<property name="shouldDeleteIfExists" value="true" />
+		<property name="shouldDeleteIfEmpty" value="true" />
+		<property name="appendAllowed" value="true" />
+
+		<property name="lineAggregator">
+			<bean
+				class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+				<property name="delimiter" value="," />
+				<property name="fieldExtractor">
+					<bean
+						class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+						<property name="names" value="id, name" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="over16Writer" class="org.springframework.batch.item.file.FlatFileItemWriter">
+		<!-- write to this csv file -->
+		<property name="resource" value="file:c:/work/spring-batch/file/over16.csv" />
+		<property name="shouldDeleteIfExists" value="true" />
+		<property name="shouldDeleteIfEmpty" value="true" />
+		<property name="appendAllowed" value="true" />
+
+		<property name="lineAggregator">
+			<bean
+				class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+				<property name="delimiter" value="," />
+				<property name="fieldExtractor">
+					<bean
+						class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+						<property name="names" value="id, name" />
+					</bean>
+				</property>
+			</bean>
+		</property>
 	</bean>
 	
-	<bean id="exampleProcessor" class="com.itservicesdepot.example.springbatch.processor.ExampleProcessor" scope="step"/>
-	<bean id="exampleWriter" class="com.itservicesdepot.example.springbatch.writer.ExampleWriter" scope="step"/>
-		
+	<bean id="exampleFileMapper" class="com.itservicesdepot.example.springbatch.model.SoccerPlayerEntry" scope="prototype"/>
+	
 </beans>
